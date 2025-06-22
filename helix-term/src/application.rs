@@ -586,11 +586,12 @@ impl Application {
             .set_doc_path(doc_save_event.doc_id, &doc_save_event.path);
         // TODO: fix being overwritten by lsp
         self.editor.set_status(format!(
-            "'{}' written, {}L {:.1}{}",
-            get_relative_path(&doc_save_event.path).to_string_lossy(),
-            lines,
-            sz,
-            SUFFIX[i],
+            "",
+            // "'{}' written, {}L {:.1}{}",
+            // get_relative_path(&doc_save_event.path).to_string_lossy(),
+            // lines,
+            // sz,
+            // SUFFIX[i],
         ));
     }
 
