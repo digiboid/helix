@@ -13,7 +13,7 @@ pub use helix_view::handlers::{word_index, Handlers};
 
 use self::document_colors::DocumentColorsHandler;
 
-mod auto_reload;
+pub(super) mod auto_reload;
 mod auto_save;
 pub mod completion;
 mod diagnostics;
