@@ -1302,16 +1302,17 @@ fn goto_window_bottom(cx: &mut Context) {
 
 fn move_word_impl<F>(cx: &mut Context, move_fn: F)
 where
-    F: Fn(RopeSlice, Range, usize) -> Range,
+    F: Fn(RopeSlice, &TextAnnotations, Range, usize) -> Range,
 {
     let count = cx.count();
     let (view, doc) = current!(cx.editor);
     let text = doc.text().slice(..);
+    let annotations = view.text_annotations(doc, None);
 
     let selection = doc
         .selection(view.id)
         .clone()
-        .transform(|range| move_fn(text, range, count));
+        .transform(move |range| move_fn(text, &annotations, range, count));
     doc.set_selection(view.id, selection);
 }
 
@@ -1365,12 +1366,13 @@ fn move_next_sub_word_end(cx: &mut Context) {
 
 fn goto_para_impl<F>(cx: &mut Context, move_fn: F)
 where
-    F: Fn(RopeSlice, Range, usize, Movement) -> Range + 'static,
+    F: Fn(RopeSlice, &TextAnnotations, Range, usize, Movement) -> Range + 'static,
 {
     let count = cx.count();
     let motion = move |editor: &mut Editor| {
         let (view, doc) = current!(editor);
         let text = doc.text().slice(..);
+        let annotations = view.text_annotations(doc, None);
         let behavior = if editor.mode == Mode::Select {
             Movement::Extend
         } else {
@@ -1380,7 +1382,9 @@ where
         let selection = doc
             .selection(view.id)
             .clone()
-            .transform(|range| move_fn(text, range, count, behavior));
+            .transform(|range| move_fn(text, &annotations, range, count, behavior));
+
+        drop(annotations);
         doc.set_selection(view.id, selection);
     };
     cx.editor.apply_motion(motion)
@@ -1547,17 +1551,20 @@ fn open_url(cx: &mut Context, url: Url, action: Action) {
 
 fn extend_word_impl<F>(cx: &mut Context, extend_fn: F)
 where
-    F: Fn(RopeSlice, Range, usize) -> Range,
+    F: Fn(RopeSlice, &TextAnnotations, Range, usize) -> Range,
 {
     let count = cx.count();
     let (view, doc) = current!(cx.editor);
     let text = doc.text().slice(..);
+    let annotations = view.text_annotations(doc, None);
 
     let selection = doc.selection(view.id).clone().transform(|range| {
-        let word = extend_fn(text, range, count);
+        let word = extend_fn(text, &annotations, range, count);
         let pos = word.cursor(text);
         range.put_cursor(text, pos, true)
     });
+
+    drop(annotations);
     doc.set_selection(view.id, selection);
 }
 
@@ -4649,7 +4656,13 @@ pub mod insert {
         delete_by_selection_insert_mode(
             cx,
             |text, range| {
-                let anchor = movement::move_prev_word_start(text, *range, count).from();
+                let anchor = movement::move_prev_word_start(
+                    text,
+                    &TextAnnotations::default(),
+                    *range,
+                    count,
+                )
+                .from();
                 let next = Range::new(anchor, range.cursor(text));
                 let range = exclude_cursor(text, next, *range);
                 (range.from(), range.to())
@@ -4663,7 +4676,9 @@ pub mod insert {
         delete_by_selection_insert_mode(
             cx,
             |text, range| {
-                let head = movement::move_next_word_end(text, *range, count).to();
+                let head =
+                    movement::move_next_word_end(text, &TextAnnotations::default(), *range, count)
+                        .to();
                 (range.cursor(text), head)
             },
             Direction::Forward,
@@ -6048,10 +6063,19 @@ fn goto_ts_object_impl(cx: &mut Context, object: &'static str, direction: Direct
         if let Some(syntax) = doc.syntax() {
             let text = doc.text().slice(..);
             let root = syntax.tree().root_node();
+            let annotations = view.text_annotations(doc, None);
 
             let selection = doc.selection(view.id).clone().transform(|range| {
                 let new_range = movement::goto_treesitter_object(
-                    text, range, object, direction, &root, syntax, &loader, count,
+                    text,
+                    &annotations,
+                    range,
+                    object,
+                    direction,
+                    &root,
+                    syntax,
+                    &loader,
+                    count,
                 );
 
                 if editor.mode == Mode::Select {
@@ -6066,6 +6090,7 @@ fn goto_ts_object_impl(cx: &mut Context, object: &'static str, direction: Direct
                     new_range.with_direction(direction)
                 }
             });
+            drop(annotations);
 
             push_jump(view, doc);
             doc.set_selection(view.id, selection);
@@ -6972,14 +6997,11 @@ fn jump_to_word(cx: &mut Context, behaviour: Movement) {
     // Calculate the jump candidates: ranges for any visible words with two or
     // more characters.
     let alphabet = &cx.editor.config().jump_label_alphabet;
-    if alphabet.is_empty() {
-        return;
-    }
-
     let jump_label_limit = alphabet.len() * alphabet.len();
     let mut words = Vec::with_capacity(jump_label_limit);
     let (view, doc) = current_ref!(cx.editor);
     let text = doc.text().slice(..);
+    let annotations = view.text_annotations(doc, None);
 
     // This is not necessarily exact if there is virtual text like soft wrap.
     // It's ok though because the extra jump labels will not be rendered.
@@ -6991,12 +7013,12 @@ fn jump_to_word(cx: &mut Context, behaviour: Movement) {
     let mut cursor_fwd = Range::point(cursor);
     let mut cursor_rev = Range::point(cursor);
     if text.get_char(cursor).is_some_and(|c| !c.is_whitespace()) {
-        let cursor_word_end = movement::move_next_word_end(text, cursor_fwd, 1);
+        let cursor_word_end = movement::move_next_word_end(text, &annotations, cursor_fwd, 1);
         //  single grapheme words need a special case
         if cursor_word_end.anchor == cursor {
             cursor_fwd = cursor_word_end;
         }
-        let cursor_word_start = movement::move_prev_word_start(text, cursor_rev, 1);
+        let cursor_word_start = movement::move_prev_word_start(text, &annotations, cursor_rev, 1);
         if cursor_word_start.anchor == next_grapheme_boundary(text, cursor) {
             cursor_rev = cursor_word_start;
         }
@@ -7004,7 +7026,7 @@ fn jump_to_word(cx: &mut Context, behaviour: Movement) {
     'outer: loop {
         let mut changed = false;
         while cursor_fwd.head < end {
-            cursor_fwd = movement::move_next_word_end(text, cursor_fwd, 1);
+            cursor_fwd = movement::move_next_word_end(text, &annotations, cursor_fwd, 1);
             // The cursor is on a word that is atleast two graphemes long and
             // madeup of word characters. The latter condition is needed because
             // move_next_word_end simply treats a sequence of characters from
@@ -7032,7 +7054,7 @@ fn jump_to_word(cx: &mut Context, behaviour: Movement) {
             break;
         }
         while cursor_rev.head > start {
-            cursor_rev = movement::move_prev_word_start(text, cursor_rev, 1);
+            cursor_rev = movement::move_prev_word_start(text, &annotations, cursor_rev, 1);
             // The cursor is on a word that is atleast two graphemes long and
             // madeup of word characters. The latter condition is needed because
             // move_prev_word_start simply treats a sequence of characters from
@@ -7063,6 +7085,7 @@ fn jump_to_word(cx: &mut Context, behaviour: Movement) {
             break;
         }
     }
+    drop(annotations);
     jump_to_label(cx, words, behaviour)
 }
 
