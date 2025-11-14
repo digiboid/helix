@@ -6,7 +6,6 @@ use helix_lsp::{
     util::lsp_range_to_range,
     LanguageServerId, LspProgressMap,
 };
-use helix_stdx::path::get_relative_path;
 use helix_view::{
     align_view,
     document::{DocumentOpenError, DocumentSavedEventResult},
@@ -605,7 +604,7 @@ impl Application {
 
         doc.set_last_saved_revision(doc_save_event.revision, doc_save_event.save_time);
 
-        let lines = doc_save_event.text.len_lines();
+        let _lines = doc_save_event.text.len_lines();
         let size = doc_save_event.text.len_bytes();
 
         enum Size {
@@ -622,7 +621,7 @@ impl Application {
             }
         }
 
-        let size = if size < 1024 {
+        let _size = if size < 1024 {
             Size::Bytes(size as u16)
         } else {
             const SUFFIX: [&str; 4] = ["B", "KiB", "MiB", "GiB"];
@@ -638,7 +637,7 @@ impl Application {
         self.editor
             .set_doc_path(doc_save_event.doc_id, &doc_save_event.path);
         // TODO: fix being overwritten by lsp
-        self.editor.set_status(format!(""));
+        self.editor.set_status(String::new());
     }
 
     #[inline(always)]
