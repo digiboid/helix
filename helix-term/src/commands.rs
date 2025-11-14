@@ -2835,12 +2835,15 @@ fn buffer_search(cx: &mut Context) {
     };
 
     let columns = [
-        PickerColumn::new("line", |item: &BufferResult, config: &BufferSearchConfig| {
-            Cell::from(Spans::from(vec![
-                Span::styled((item.line_num + 1).to_string(), config.number_style),
-                Span::styled(":", config.colon_style),
-            ]))
-        }),
+        PickerColumn::new(
+            "line",
+            |item: &BufferResult, config: &BufferSearchConfig| {
+                Cell::from(Spans::from(vec![
+                    Span::styled((item.line_num + 1).to_string(), config.number_style),
+                    Span::styled(":", config.colon_style),
+                ]))
+            },
+        ),
         PickerColumn::hidden("contents"),
     ];
 
