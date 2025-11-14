@@ -1502,9 +1502,11 @@ impl Component for EditorView {
             Event::Mouse(event) => self.handle_mouse_event(event, &mut cx),
             Event::IdleTimeout => self.handle_idle_timeout(&mut cx),
             Event::FocusGained => {
-                if context.editor.config().auto_reload.focus_gained && crate::handlers::auto_reload::count_externally_modified_documents(
+                if context.editor.config().auto_reload.focus_gained
+                    && crate::handlers::auto_reload::count_externally_modified_documents(
                         context.editor.documents(),
-                    ) > 0 {
+                    ) > 0
+                {
                     if let Err(e) = commands::typed::reload_all(
                         context,
                         helix_core::command_line::Args::default(),
