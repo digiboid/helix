@@ -394,6 +394,7 @@ impl MappableCommand {
         search_selection_detect_word_boundaries, "Use current selection as the search pattern, automatically wrapping with `\\b` on word boundaries",
         make_search_word_bounded, "Modify current search to make it word bounded",
         global_search, "Global search in workspace folder",
+        buffer_search, "Search in current buffer",
         extend_line, "Select current line, if already selected, extend to another line based on the anchor",
         extend_line_below, "Select current line, if already selected, extend to next line",
         extend_line_above, "Select current line, if already selected, extend to previous line",
@@ -2798,6 +2799,150 @@ fn global_search(cx: &mut Context) {
     })
     .with_history_register(Some(reg))
     .with_dynamic_query(get_files, Some(275));
+
+    cx.push_layer(Box::new(overlaid(picker)));
+}
+
+fn buffer_search(cx: &mut Context) {
+    #[derive(Debug)]
+    struct BufferResult {
+        /// 0 indexed lines
+        line_num: usize,
+    }
+
+    impl BufferResult {
+        fn new(line_num: usize) -> Self {
+            Self { line_num }
+        }
+    }
+
+    struct BufferSearchConfig {
+        smart_case: bool,
+        number_style: Style,
+        colon_style: Style,
+        doc_id: DocumentId,
+    }
+
+    let (view, _doc) = current_ref!(cx.editor);
+    let doc_id = view.doc;
+
+    let config = cx.editor.config();
+    let config = BufferSearchConfig {
+        smart_case: config.search.smart_case,
+        number_style: cx.editor.theme.get("constant.numeric.integer"),
+        colon_style: cx.editor.theme.get("punctuation"),
+        doc_id,
+    };
+
+    let columns = [
+        PickerColumn::new("line", |item: &BufferResult, config: &BufferSearchConfig| {
+            Cell::from(Spans::from(vec![
+                Span::styled((item.line_num + 1).to_string(), config.number_style),
+                Span::styled(":", config.colon_style),
+            ]))
+        }),
+        PickerColumn::hidden("contents"),
+    ];
+
+    let get_results = |query: &str,
+                       editor: &mut Editor,
+                       config: std::sync::Arc<BufferSearchConfig>,
+                       injector: &ui::picker::Injector<_, _>| {
+        if query.is_empty() {
+            return async { Ok(()) }.boxed();
+        }
+
+        // Get the current document's text from the editor
+        let doc = match editor.document(config.doc_id) {
+            Some(doc) => doc,
+            None => {
+                return async { Err(anyhow::anyhow!("Document no longer exists")) }.boxed();
+            }
+        };
+        let doc_text = doc.text().clone();
+
+        let matcher = match RegexMatcherBuilder::new()
+            .case_smart(config.smart_case)
+            .build(query)
+        {
+            Ok(matcher) => {
+                // Clear any "Failed to compile regex" errors out of the statusline.
+                editor.clear_status();
+                matcher
+            }
+            Err(err) => {
+                log::info!("Failed to compile search pattern in buffer search: {}", err);
+                return async { Err(anyhow::anyhow!("Failed to compile regex")) }.boxed();
+            }
+        };
+
+        let injector = injector.clone();
+
+        async move {
+            let searcher = SearcherBuilder::new()
+                .binary_detection(BinaryDetection::quit(b'\x00'))
+                .build();
+
+            let mut searcher = searcher;
+            let mut stop = false;
+            let sink = sinks::UTF8(|line_num, _line_content| {
+                stop = injector
+                    .push(BufferResult::new(line_num as usize - 1))
+                    .is_err();
+
+                Ok(!stop)
+            });
+
+            let result = if searcher.multi_line_with_matcher(&matcher) {
+                // in this case a continuous buffer is required
+                // convert the rope to a string
+                let text = doc_text.to_string();
+                searcher.search_slice(&matcher, text.as_bytes(), sink)
+            } else {
+                searcher.search_reader(&matcher, RopeReader::new(doc_text.slice(..)), sink)
+            };
+
+            if let Err(err) = result {
+                log::error!("Buffer search error: {}", err);
+            }
+
+            Ok(())
+        }
+        .boxed()
+    };
+
+    let reg = cx.register.unwrap_or('/');
+    cx.editor.registers.last_search_register = reg;
+
+    let picker = Picker::new(
+        columns,
+        1, // contents
+        [],
+        config,
+        move |cx, BufferResult { line_num }, action| {
+            let doc = doc_mut!(cx.editor, &doc_id);
+            let view = view_mut!(cx.editor);
+            let text = doc.text();
+            if *line_num >= text.len_lines() {
+                cx.editor.set_error(
+                    "The line you jumped to does not exist anymore because the file has changed.",
+                );
+                return;
+            }
+            let start = text.line_to_char(*line_num);
+            let end = text.line_to_char((*line_num + 1).min(text.len_lines()));
+
+            doc.set_selection(view.id, Selection::single(start, end));
+            if action.align_view(view, doc.id()) {
+                align_view(doc, view, Align::Center);
+            }
+        },
+    )
+    .with_preview(move |_editor, BufferResult { line_num, .. }| {
+        Some((doc_id.into(), Some((*line_num, *line_num))))
+    })
+    .with_history_register(Some(reg))
+    .with_dynamic_query(get_results, Some(275));
 
     cx.push_layer(Box::new(overlaid(picker)));
 }
