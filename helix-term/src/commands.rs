@@ -2808,11 +2808,15 @@ fn buffer_search(cx: &mut Context) {
     struct BufferResult {
         /// 0 indexed lines
         line_num: usize,
+        line_content: String,
     }
 
     impl BufferResult {
-        fn new(line_num: usize) -> Self {
-            Self { line_num }
+        fn new(line_num: usize, line_content: String) -> Self {
+            Self {
+                line_num,
+                line_content,
+            }
         }
     }
 
@@ -2840,7 +2844,8 @@ fn buffer_search(cx: &mut Context) {
             |item: &BufferResult, config: &BufferSearchConfig| {
                 Cell::from(Spans::from(vec![
                     Span::styled((item.line_num + 1).to_string(), config.number_style),
-                    Span::styled(":", config.colon_style),
+                    Span::styled(": ", config.colon_style),
+                    Span::raw(&item.line_content),
                 ]))
             },
         ),
@@ -2888,9 +2893,12 @@ fn buffer_search(cx: &mut Context) {
 
             let mut searcher = searcher;
             let mut stop = false;
-            let sink = sinks::UTF8(|line_num, _line_content| {
+            let sink = sinks::UTF8(|line_num, line_content| {
                 stop = injector
-                    .push(BufferResult::new(line_num as usize - 1))
+                    .push(BufferResult::new(
+                        line_num as usize - 1,
+                        line_content.trim().to_string(),
+                    ))
                     .is_err();
 
                 Ok(!stop)
@@ -2922,7 +2930,7 @@ fn buffer_search(cx: &mut Context) {
         1, // contents
         [],
         config,
-        move |cx, BufferResult { line_num }, action| {
+        move |cx, BufferResult { line_num, .. }, action| {
             let doc = doc_mut!(cx.editor, &doc_id);
             let view = view_mut!(cx.editor);
             let text = doc.text();
@@ -2941,6 +2949,7 @@ fn buffer_search(cx: &mut Context) {
             }
         },
     )
+    .truncate_start(false)
     .with_preview(move |_editor, BufferResult { line_num, .. }| {
         Some((doc_id.into(), Some((*line_num, *line_num))))
     })
