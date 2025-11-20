@@ -226,6 +226,7 @@
 | rmarkdown | ✓ |  | ✓ |  |  | `R` |
 | robot | ✓ |  |  |  |  | `robotframework_ls` |
 | robots.txt | ✓ | ✓ |  | ✓ |  |  |
+| roc | ✓ | ✓ | ✓ | ✓ |  | `roc_language_server` |
 | ron | ✓ |  | ✓ | ✓ | ✓ | `ron-lsp` |
 | rshtml | ✓ | ✓ |  |  |  | `rshtml-analyzer`, `vscode-html-language-server`, `superhtml` |
 | rst | ✓ |  |  |  |  |  |
