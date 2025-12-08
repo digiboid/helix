@@ -989,8 +989,8 @@ useful when you're simply looking over text and not actively editing it.</p>
 <tr><td><code>g</code></td><td>Open changed file picker</td><td><code>changed_file_picker</code></td></tr>
 <tr><td><code>G</code></td><td>Debug (experimental)</td><td>N/A</td></tr>
 <tr><td><code>k</code></td><td>Show documentation for item under cursor in a <a href="keymap.html#popup">popup</a> (<strong>LSP</strong>)</td><td><code>hover</code></td></tr>
-<tr><td><code>s</code></td><td>Open document symbol picker (<strong>LSP</strong>)</td><td><code>symbol_picker</code></td></tr>
-<tr><td><code>S</code></td><td>Open workspace symbol picker (<strong>LSP</strong>)</td><td><code>workspace_symbol_picker</code></td></tr>
+<tr><td><code>s</code></td><td>Open document symbol picker (<strong>LSP</strong> or <strong>TS</strong>)</td><td><code>lsp_or_syntax_symbol_picker</code></td></tr>
+<tr><td><code>S</code></td><td>Open workspace symbol picker (<strong>LSP</strong> or <strong>TS</strong>)</td><td><code>lsp_or_syntax_workspace_symbol_picker</code></td></tr>
 <tr><td><code>d</code></td><td>Open document diagnostics picker (<strong>LSP</strong>)</td><td><code>diagnostics_picker</code></td></tr>
 <tr><td><code>D</code></td><td>Open workspace diagnostics picker (<strong>LSP</strong>)</td><td><code>workspace_diagnostics_picker</code></td></tr>
 <tr><td><code>r</code></td><td>Rename symbol (<strong>LSP</strong>)</td><td><code>rename_symbol</code></td></tr>
@@ -1680,10 +1680,11 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>adl</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>agda</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>alloy</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>amber</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>amber-lsp</code></td></tr>
+<tr><td>amber</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>amber-lsp</code></td></tr>
 <tr><td>astro</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>astro-ls</code></td></tr>
 <tr><td>awk</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>awk-language-server</code></td></tr>
 <tr><td>bash</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>bash-language-server</code></td></tr>
+<tr><td>basic</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td></tr>
 <tr><td>bass</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>bass</code></td></tr>
 <tr><td>beancount</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>beancount-language-server</code></td></tr>
 <tr><td>bibtex</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>texlab</code></td></tr>
@@ -1744,13 +1745,14 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>erb</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>erlang</td><td>✓</td><td>✓</td><td></td><td>✓</td><td>✓</td><td><code>erlang_ls</code>, <code>elp</code></td></tr>
 <tr><td>esdl</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>fennel</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>fennel-ls</code></td></tr>
+<tr><td>fennel</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td><code>fennel-ls</code></td></tr>
 <tr><td>fga</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
 <tr><td>fidl</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>fish</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>fish-lsp</code></td></tr>
 <tr><td>flatbuffers</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>forth</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>forth-lsp</code></td></tr>
 <tr><td>fortran</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>fortls</code></td></tr>
+<tr><td>freebasic</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td></tr>
 <tr><td>fsharp</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>fsautocomplete</code></td></tr>
 <tr><td>gas</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>asm-lsp</code></td></tr>
 <tr><td>gdscript</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td></tr>
@@ -1796,6 +1798,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>html</td><td>✓</td><td>✓</td><td></td><td></td><td>✓</td><td><code>vscode-html-language-server</code>, <code>superhtml</code></td></tr>
 <tr><td>htmldjango</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>djlsp</code>, <code>vscode-html-language-server</code>, <code>superhtml</code></td></tr>
 <tr><td>hurl</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td></tr>
+<tr><td>hy</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>hyuga</code></td></tr>
 <tr><td>hyprlang</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>hyprls</code></td></tr>
 <tr><td>idris</td><td></td><td></td><td></td><td></td><td></td><td><code>idris2-lsp</code></td></tr>
 <tr><td>iex</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -1899,11 +1902,13 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>regex</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td></td></tr>
 <tr><td>rego</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>regols</code></td></tr>
 <tr><td>rescript</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>rescript-language-server</code></td></tr>
+<tr><td>ripple</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>ripple-language-server</code></td></tr>
 <tr><td>rmarkdown</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>R</code></td></tr>
 <tr><td>robot</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>robotframework_ls</code></td></tr>
 <tr><td>robots.txt</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td></td></tr>
 <tr><td>roc</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td><code>roc_language_server</code></td></tr>
 <tr><td>ron</td><td>✓</td><td></td><td>✓</td><td>✓</td><td>✓</td><td><code>ron-lsp</code></td></tr>
+<tr><td>rpmspec</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>rshtml</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td><code>rshtml-analyzer</code>, <code>vscode-html-language-server</code>, <code>superhtml</code></td></tr>
 <tr><td>rst</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>ruby</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td><code>ruby-lsp</code>, <code>solargraph</code></td></tr>
@@ -1912,6 +1917,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>rust-format-args-macro</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td></tr>
 <tr><td>sage</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td></tr>
 <tr><td>scala</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>metals</code></td></tr>
+<tr><td>scfg</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>scheme</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td></tr>
 <tr><td>scss</td><td>✓</td><td></td><td></td><td></td><td>✓</td><td><code>vscode-css-language-server</code></td></tr>
 <tr><td>shellcheckrc</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td></tr>
@@ -1934,7 +1940,7 @@ Languages</a> guide for more language configuration information.</p>
 <tr><td>supercollider</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>svelte</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td><code>svelteserver</code></td></tr>
 <tr><td>sway</td><td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td><code>forc</code></td></tr>
-<tr><td>swift</td><td>✓</td><td>✓</td><td></td><td></td><td>✓</td><td><code>sourcekit-lsp</code></td></tr>
+<tr><td>swift</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td><code>sourcekit-lsp</code></td></tr>
 <tr><td>systemd</td><td>✓</td><td></td><td></td><td></td><td></td><td><code>systemd-lsp</code></td></tr>
 <tr><td>systemverilog</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td>t32</td><td>✓</td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -2054,8 +2060,8 @@ hidden = false
 <code>--config</code> command line argument, for example <code>hx -c path/to/custom-config.toml</code>.
 You can reload the config file by issuing the <code>:config-reload</code> command. Alternatively, on Unix operating systems, you can reload it by sending the USR1
 signal to the Helix process, such as by using the command <code>pkill -USR1 hx</code>.</p>
-<p>Finally, you can have a <code>config.toml</code> local to a project by putting it under a <code>.helix</code> directory in your repository.
-Its settings will be merged with the configuration directory <code>config.toml</code> and the built-in configuration.</p>
+<p>Finally, you can have a <code>config.toml</code> and a <code>languages.toml</code> local to a project by putting it under a <code>.helix</code> directory in your repository.
+Its settings will be merged with the configuration directory and the built-in configuration.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="editor"><a class="header" href="#editor">Editor</a></h2>
 <ul>
 <li><a href="editor.html#editor-section"><code>[editor]</code> Section</a></li>
@@ -2064,6 +2070,7 @@ Its settings will be merged with the configuration directory <code>config.toml</
 <li><a href="editor.html#editorlsp-section"><code>[editor.lsp]</code> Section</a></li>
 <li><a href="editor.html#editorcursor-shape-section"><code>[editor.cursor-shape]</code> Section</a></li>
 <li><a href="editor.html#editorfile-picker-section"><code>[editor.file-picker]</code> Section</a></li>
+<li><a href="editor.html#editorbuffer-picker-section"><code>[editor.buffer-picker]</code> Section</a></li>
 <li><a href="editor.html#editorauto-pairs-section"><code>[editor.auto-pairs]</code> Section</a></li>
 <li><a href="editor.html#editorauto-reload-section"><code>[editor.auto-reload]</code> Section</a></li>
 <li><a href="editor.html#editorauto-save-section"><code>[editor.auto-save]</code> Section</a></li>
@@ -2128,7 +2135,7 @@ Its settings will be merged with the configuration directory <code>config.toml</
 </tbody></table>
 </div>
 <div class="footnote-definition" id="3"><sup class="footnote-definition-label">1</sup>
-<p>In most cases, you also need to enable the <code>auto-format</code> setting under <code>language.toml</code>. You can find the reasoning <a href="https://github.com/helix-editor/helix/discussions/9043#discussioncomment-7811497">here</a>.</p>
+<p>In most cases, you also need to enable the <code>auto-format</code> setting under <code>languages.toml</code>. You can find the reasoning <a href="https://github.com/helix-editor/helix/discussions/9043#discussioncomment-7811497">here</a>.</p>
 </div>
 <h3 id="editorclipboard-provider-section"><a class="header" href="#editorclipboard-provider-section"><code>[editor.clipboard-provider]</code> Section</a></h3>
 <p>Helix can be configured either to use a builtin clipboard configuration or to use
@@ -2276,6 +2283,16 @@ not visible in the Helix file picker and global search.</p>
 <tr><td><code>flatten-dirs</code></td><td>Enables flattening single child directories</td><td><code>true</code></td></tr>
 </tbody></table>
 </div>
+<h3 id="editorbuffer-picker-section"><a class="header" href="#editorbuffer-picker-section"><code>[editor.buffer-picker]</code> Section</a></h3>
+<p>Set options for buffer picker.</p>
+<div class="table-wrapper"><table><thead><tr><th>Key</th><th>Description</th><th>Default</th></tr></thead><tbody>
+<tr><td><code>start-position</code></td><td>Controls behavior for which buffer is initially selected</td><td><code>current</code></td></tr>
+</tbody></table>
+</div>
+<p>Example</p>
+<pre><code class="language-toml">[editor.buffer-picker]
+start-position = "previous"
+</code></pre>
 <h3 id="editorauto-pairs-section"><a class="header" href="#editorauto-pairs-section"><code>[editor.auto-pairs]</code> Section</a></h3>
 <p>Enables automatic insertion of pairs to parentheses, brackets, etc. Can be a
 simple boolean value, or a specific mapping of pairs of single characters.</p>
@@ -3319,12 +3336,14 @@ in its <code>textobjects.scm</code> file, function navigation should also work a
 <code>function.movement</code> should be defined only if the node captured by <code>function.around</code>
 doesn't make sense in a navigation context.</p>
 <div style="break-before: page; page-break-before: always;"></div><h2 id="adding-indent-queries"><a class="header" href="#adding-indent-queries">Adding indent queries</a></h2>
-<p>Helix uses tree-sitter to correctly indent new lines. This requires a tree-
-sitter grammar and an <code>indent.scm</code> query file placed in <code>runtime/queries/ {language}/indents.scm</code>. The indentation for a line is calculated by traversing
-the syntax tree from the lowest node at the beginning of the new line (see
-<a href="guides/indent.html#indent-queries">Indent queries</a>). Each of these nodes contributes to the total
-indent when it is captured by the query (in what way depends on the name of
-the capture.</p>
+<p>Helix uses tree-sitter to correctly indent new lines. This requires a
+tree-sitter grammar and an <code>indent.scm</code> query file placed in
+<code>runtime/queries/{language}/indents.scm</code>. The indentation for a line is
+calculated by traversing the syntax tree from the lowest node at the
+beginning of the new line (see <a href="guides/indent.html#indent-queries">Indent queries</a>).
+Each of these nodes contributes to the total indent when it is
+captured by the query (in what way depends on the name of
+the capture).</p>
 <p>Note that it matters where these added indents begin. For example,
 multiple indent level increases that start on the same line only increase
 the total indent level by 1. See <a href="guides/indent.html#capture-types">Capture types</a>.</p>
