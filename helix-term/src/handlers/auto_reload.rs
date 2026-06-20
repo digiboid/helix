@@ -154,6 +154,7 @@ fn handle_document_change(
     prompt_if_modified: bool,
 ) {
     let scrolloff = editor.config().scrolloff;
+    let target_view_id = editor.get_synced_view_id(doc_id);
 
     let doc = doc_mut!(editor, &doc_id);
     let Some(path) = doc.path().cloned() else {
@@ -185,7 +186,7 @@ fn handle_document_change(
             editor.set_warning(msg);
         }
     } else {
-        let view = view_mut!(editor);
+        let view = view_mut!(editor, target_view_id);
         let trust_full = editor
             .workspace_trust
             .query(
@@ -247,8 +248,9 @@ fn prompt_reload_modified(compositor: &mut Compositor, doc_id: DocumentId, path_
             match event {
                 PromptEvent::Validate => {
                     let scrolloff = cx.editor.config().scrolloff;
+                    let target_view_id = cx.editor.get_synced_view_id(doc_id);
                     let doc = doc_mut!(cx.editor, &doc_id);
-                    let view = view_mut!(cx.editor);
+                    let view = view_mut!(cx.editor, target_view_id);
                     let trust_full = cx.editor
         .workspace_trust
         .query(doc.workspace_root(), helix_loader::workspace_trust::TrustQuery::Git)
