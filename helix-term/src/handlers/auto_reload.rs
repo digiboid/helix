@@ -174,7 +174,7 @@ fn handle_document_change(
     let target_view_id = editor.get_synced_view_id(doc_id);
 
     let doc = doc_mut!(editor, &doc_id);
-    let Some(path) = doc.path().cloned() else {
+    let Some(path) = doc.path().map(ToOwned::to_owned) else {
         return;
     };
 
@@ -276,10 +276,13 @@ fn prompt_reload_modified(compositor: &mut Compositor, doc_id: DocumentId, path_
                     let doc = doc_mut!(cx.editor, &doc_id);
                     let view = view_mut!(cx.editor, target_view_id);
                     let trust_full = cx.editor
-        .workspace_trust
-        .query(doc.workspace_root(), helix_loader::workspace_trust::TrustQuery::Git)
-        .is_trusted();
-    match doc.reload(view, &cx.editor.diff_providers, trust_full) {
+                        .workspace_trust
+                        .query(
+                            doc.workspace_root(),
+                            helix_loader::workspace_trust::TrustQuery::Git,
+                        )
+                        .is_trusted();
+                    match doc.reload(view, &cx.editor.diff_providers, trust_full) {
                         Ok(_) => {
                             view.ensure_cursor_in_view(doc, scrolloff);
                             cx.editor.set_status(format!("{path_str} reloaded"));

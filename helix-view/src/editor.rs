@@ -2309,7 +2309,7 @@ impl Editor {
         let path = path.map(|path| path.into());
         let doc = doc_mut!(self, &doc_id);
         // the path that will be written: the override, else the document's own path
-        let save_path = path.clone().or_else(|| doc.path().cloned());
+        let save_path = path.clone().or_else(|| doc.path().map(ToOwned::to_owned));
         let doc_save_future = doc.save(path, force)?;
 
         // When a file is written to, notify the file event handler, unless the
